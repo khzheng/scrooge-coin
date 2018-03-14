@@ -20,6 +20,7 @@ public class TxHandler {
      */
     public boolean isValidTx(Transaction tx) {
         // IMPLEMENT THIS
+		return true;
     }
 
     /**
@@ -29,6 +30,7 @@ public class TxHandler {
      */
     public Transaction[] handleTxs(Transaction[] possibleTxs) {
         // IMPLEMENT THIS
+		return possibleTxs;
     }
 
 }
