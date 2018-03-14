@@ -18,24 +18,42 @@ public class ScroogeCoin {
 		PrivateKey privateKeyAlice = pair.getPrivate();
 		PublicKey publicKeyAlice = pair.getPublic();
 		
-		// System.out.println("Scrooge private: " + privateKeyScrooge + " public: " + publicKeyScrooge);
-		// System.out.println("Alice private: " + privateKeyAlice + " public: " + publicKeyAlice);
-		
 		// create root transaction so that Scrooge owns a coin
-		Transaction tx = new Transaction();
-		tx.addOutput(5, publicKeyScrooge);
-		
-		// just create an arbritrary initial hash value 
-		byte[] initialHash = BigInteger.valueOf(543754544).toByteArray();
-		tx.addInput(initialHash, 0);
+		int initialCoinValue = 5;
+		byte[] initialHash = BigInteger.valueOf(543754544).toByteArray();	// just create an arbritrary initial hash value 
+		Transaction rootTx = new Transaction();
+		rootTx.setHash(initialHash);
+		rootTx.addOutput(initialCoinValue, publicKeyScrooge);
+		rootTx.addInput(initialHash, 0);
 		
 		// have Scrooge sign root transaction
 		Signature signature = Signature.getInstance("SHA256withRSA");
-		signature.initSign(privateKeyScrooge);
-		signature.update(tx.getRawDataToSign(0));
- 		byte[] sig = signature.sign();
+ 		byte[] sig = signMessage(signature, rootTx.getRawDataToSign(0), privateKeyScrooge);
+		rootTx.addSignature(sig, 0);
+		
+		// System.out.println("rootTx verified? " + Crypto.verifySignature(publicKeyScrooge, rootTx.getRawDataToSign(0), sig));
+		
+		// root transaction for Scrooge is unspent so add it to the UTXOPool
+		UTXO utxo = new UTXO(rootTx.getHash(), 0);
+		UTXOPool utxoPool = new UTXOPool();
+		utxoPool.addUTXO(utxo, rootTx.getOutput(0));
+		
+		// split the coin of value 5 and send to Alice
+		Transaction tx = new Transaction();
+		tx.addInput(rootTx.getHash(), 0);	// index 0 has valie of 5
+		tx.addOutput(3, publicKeyAlice);
+		tx.addOutput(2, publicKeyAlice);
+		
+		// Scrooge needs to sign it since he's giving coins to Alice
+		sig = signMessage(signature, tx.getRawDataToSign(0), privateKeyScrooge);
 		tx.addSignature(sig, 0);
 		
-		// boolean verified = Crypto.verifySignature(publicKeyScrooge, tx.getRawDataToSign(0), sig);
+		// System.out.println("tx verified? " + Crypto.verifySignature(publicKeyScrooge, tx.getRawDataToSign(0), sig));
+	}
+	
+	public static byte[] signMessage(Signature signature, byte[] message, PrivateKey privateKey) throws InvalidKeyException, SignatureException {
+		signature.initSign(privateKey);
+		signature.update(message);
+		return signature.sign();
 	}
 }
