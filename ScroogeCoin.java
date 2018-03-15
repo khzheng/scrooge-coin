@@ -41,16 +41,17 @@ public class ScroogeCoin {
 		// split the coin of value 5 and send to Alice
 		Transaction tx = new Transaction();
 		tx.addInput(rootTx.getHash(), 0);	// index 0 has value of 5
-		tx.addOutput(5, publicKeyAlice);
-//		tx.addOutput(2, publicKeyAlice);
-		
+		tx.addOutput(2, publicKeyAlice);
+		tx.addOutput(3, publicKeyAlice);
+
 		// Scrooge needs to sign it since he's giving coins to Alice
 		sig = signMessage(signature, tx.getRawDataToSign(0), privateKeyScrooge);
 		tx.addSignature(sig, 0);
 		tx.finalize();
 
 		// System.out.println("tx verified? " + Crypto.verifySignature(publicKeyScrooge, tx.getRawDataToSign(0), sig));
-
+		TxHandler txHandler = new TxHandler(utxoPool);
+		System.out.println("tx valild? " + txHandler.isValidTx(tx));
 	}
 	
 	public static byte[] signMessage(Signature signature, byte[] message, PrivateKey privateKey) throws InvalidKeyException, SignatureException {
