@@ -30,6 +30,7 @@ public class ScroogeCoin {
  		byte[] sig = signMessage(signature, rootTx.getRawDataToSign(0), privateKeyScrooge);
 		rootTx.addSignature(sig, 0);
 		rootTx.finalize();
+		System.out.println("rootTx: " + rootTx.getHash());
 		
 //		 System.out.println("rootTx verified? " + Crypto.verifySignature(publicKeyScrooge, rootTx.getRawDataToSign(0), sig));
 		
@@ -42,16 +43,22 @@ public class ScroogeCoin {
 		Transaction tx = new Transaction();
 		tx.addInput(rootTx.getHash(), 0);	// index 0 has value of 5
 		tx.addOutput(2, publicKeyAlice);
-		tx.addOutput(9, publicKeyAlice);
+		tx.addOutput(4, publicKeyAlice);
 
 		// Scrooge needs to sign it since he's giving coins to Alice
 		sig = signMessage(signature, tx.getRawDataToSign(0), privateKeyScrooge);
 		tx.addSignature(sig, 0);
 		tx.finalize();
+		System.out.println("tx: " + tx.getHash());
 
 		// System.out.println("tx verified? " + Crypto.verifySignature(publicKeyScrooge, tx.getRawDataToSign(0), sig));
 		TxHandler txHandler = new TxHandler(utxoPool);
-		System.out.println("tx valild? " + txHandler.isValidTx(tx));
+//		System.out.println("tx valild? " + txHandler.isValidTx(tx));
+
+		Transaction[] possibleTxs = new Transaction[]{rootTx, tx};
+		Transaction[] acceptedTxs = txHandler.handleTxs(possibleTxs);
+		for (int i = 0; i < acceptedTxs.length; i++)
+			System.out.println(i + " = " + acceptedTxs[i].getHash());
 	}
 	
 	public static byte[] signMessage(Signature signature, byte[] message, PrivateKey privateKey) throws InvalidKeyException, SignatureException {
