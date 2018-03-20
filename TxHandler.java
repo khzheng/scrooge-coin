@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.HashSet;
 
 public class TxHandler {
@@ -85,8 +86,17 @@ public class TxHandler {
      * updating the current UTXO pool as appropriate.
      */
     public Transaction[] handleTxs(Transaction[] possibleTxs) {
-        // IMPLEMENT THIS
-		return possibleTxs;
+        ArrayList<Transaction> acceptedTransactions = new ArrayList<Transaction>();
+
+        for (int i = 0; i < possibleTxs.length; i++) {
+            Transaction tx = possibleTxs[i];
+            if (isValidTx(tx))
+                acceptedTransactions.add(tx);
+        }
+
+        Transaction[] validTransactions = acceptedTransactions.toArray(new Transaction[acceptedTransactions.size()]);
+
+		return validTransactions;
     }
 
 }

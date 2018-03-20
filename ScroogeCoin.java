@@ -42,7 +42,7 @@ public class ScroogeCoin {
 		Transaction tx = new Transaction();
 		tx.addInput(rootTx.getHash(), 0);	// index 0 has value of 5
 		tx.addOutput(2, publicKeyAlice);
-		tx.addOutput(3, publicKeyAlice);
+		tx.addOutput(9, publicKeyAlice);
 
 		// Scrooge needs to sign it since he's giving coins to Alice
 		sig = signMessage(signature, tx.getRawDataToSign(0), privateKeyScrooge);
